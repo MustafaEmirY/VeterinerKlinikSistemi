@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using VeterinerKlinikSistemi.Models;
 
 namespace VeterinerKlinikSistemi.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -79,5 +80,21 @@ public class ApplicationDbContext : DbContext
             .WithMany(h => h.Randevular)
             .HasForeignKey(r => r.HizmetId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApplicationUser>()
+            .HasIndex(u => u.McpApiAnahtari)
+            .IsUnique();
+
+        modelBuilder.Entity<EvcilHayvan>()
+            .HasOne(e => e.Sahip)
+            .WithMany(u => u.EvcilHayvanlar)
+            .HasForeignKey(e => e.SahipId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Veteriner>()
+            .HasOne(v => v.Kullanici)
+            .WithMany()
+            .HasForeignKey(v => v.KullaniciId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

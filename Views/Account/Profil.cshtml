@@ -1,0 +1,67 @@
+@model ApplicationUser
+@{
+    ViewData["Title"] = "Profilim";
+    var roller = ViewData["Roller"] as IList<string> ?? new List<string>();
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-7">
+        <div class="card border rounded-4 shadow-sm overflow-hidden">
+            <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 fw-bold text-kaplan">Hesap Bilgilerim</h4>
+                <div>
+                    @foreach (var rol in roller)
+                    {
+                        var rozetSinifi = rol switch
+                        {
+                            Roller.Admin => "badge-role-admin",
+                            Roller.Veteriner => "badge-role-vet",
+                            _ => "badge-role-uye"
+                        };
+                        var rolMetni = rol switch
+                        {
+                            Roller.Admin => "Admin",
+                            Roller.Veteriner => "Veteriner Hekim",
+                            _ => "Hayvan Sahibi"
+                        };
+                        <span class="badge rounded-pill px-3 py-2 @rozetSinifi">@rolMetni</span>
+                    }
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <dl class="row mb-4">
+                    <dt class="col-sm-4 text-muted">Ad Soyad</dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.AdSoyad</dd>
+
+                    <dt class="col-sm-4 text-muted">E-posta</dt>
+                    <dd class="col-sm-8">@Model.Email</dd>
+                </dl>
+
+                <div class="p-3 rounded-4 hero-kaplan">
+                    <label for="mcpKeyInput" class="form-label fw-semibold text-kaplan mb-1">
+                        Kişisel MCP API Anahtarınız
+                    </label>
+                    <p class="small text-muted mb-2">
+                        Yapay zekâ asistanınızın (Claude Desktop, VS Code veya MCP Inspector) yalnızca size ait verileri sorgulayabilmesi için bu anahtarı kullanabilirsiniz.
+                    </p>
+                    <div class="input-group">
+                        <input id="mcpKeyInput" type="text" class="form-control font-monospace" value="@Model.McpApiAnahtari" readonly />
+                        <button type="button" id="copyKeyBtn" class="btn btn-outline-kaplan">Kopyala</button>
+                    </div>
+                    <div id="copyFeedback" class="small text-success mt-1 d-none">Anahtar panoya kopyalandı.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("copyKeyBtn")?.addEventListener("click", async function () {
+            const input = document.getElementById("mcpKeyInput");
+            if (!input) return;
+            await navigator.clipboard.writeText(input.value);
+            document.getElementById("copyFeedback")?.classList.remove("d-none");
+        });
+    </script>
+}

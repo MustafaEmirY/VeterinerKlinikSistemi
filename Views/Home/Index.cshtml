@@ -1,43 +1,157 @@
-﻿@{
+﻿@model HomeIndexViewModel
+@{
     ViewData["Title"] = "Ana Sayfa";
 }
 
-<div class="text-center py-4 mb-4 bg-light rounded-3 border">
-    <h1 class="display-5 fw-bold">Veteriner Kliniği Randevu ve Hasta Takip Sistemi</h1>
-    <p class="lead text-muted mx-auto" style="max-width: 700px;">
-        Veteriner klinikleri, hekimler, evcil hayvanların muayene ve aşı geçmişleri ile randevu süreçlerini tek bir yerden yönetin.
-    </p>
-</div>
+<section class="row g-4 align-items-stretch mb-5">
+    <div class="col-lg-7 d-flex flex-column justify-content-center py-2">
+        <div class="mb-3">
+            <span class="pill-tag">Serdivan / Sakarya</span>
+        </div>
+        <h1 class="display-5 fw-bold text-dark mb-3">
+            Evcil ve Egzotik Dostlarınız İçin Güvenilir Klinik Takibi
+        </h1>
+        <p class="lead text-muted mb-4">
+            Kedi, köpek ve egzotik hayvanlarınızın muayene geçmişini, yaklaşan aşı takvimini ve uzman hekim randevularını tek bir platformdan kolayca planlayın.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-controller="Account" asp-action="Profil" class="btn btn-kaplan btn-lg rounded-pill px-4">Profilim ve MCP Anahtarım</a>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login" class="btn btn-kaplan btn-lg rounded-pill px-4">Giriş Yap</a>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-outline-kaplan btn-lg rounded-pill px-4">Üye Ol</a>
+            }
+        </div>
+    </div>
 
-<div class="row g-4">
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Hizmetler &amp; Hekimler</h5>
-                <p class="card-text">
-                    Kliniklerin sunduğu muayene, aşı ve bakım hizmetleri ile veteriner hekimlerin uzmanlık alanları ve müsaitlik saatleri tanımlanır.
-                </p>
+    <div class="col-lg-5">
+        <div class="clinic-panel p-4 h-100 d-flex flex-column justify-content-between shadow-sm">
+            <div>
+                <div class="small text-uppercase opacity-75 fw-semibold mb-1">Klinik Bilgileri</div>
+                <h3 class="fw-bold mb-3">@(Model.Klinik?.Ad ?? "Kaplan Veteriner Kliniği")</h3>
+
+                @if (Model.Klinik != null)
+                {
+                    <div class="mb-3 small">
+                        <div class="opacity-75">Çalışma Saatleri</div>
+                        <div class="fw-semibold fs-6">
+                            @Model.Klinik.AcilisSaati.ToString("HH:mm") – @Model.Klinik.KapanisSaati.ToString("HH:mm")
+                        </div>
+                    </div>
+                }
+
+                <div class="mb-3 small">
+                    <div class="opacity-75">Hizmet Kapsamı</div>
+                    <div class="fw-semibold">Kedi, Köpek ve Egzotik Hayvanlar</div>
+                </div>
+                <div class="mb-3 small">
+                    <div class="opacity-75">Randevu &amp; Aşı Takibi</div>
+                    <div>Çakışma kontrollü online randevu ve düzenli aşı takvimi</div>
+                </div>
+            </div>
+
+            <div class="row g-2 mt-2">
+                <div class="col-6">
+                    <div class="clinic-stat-box">
+                        <div class="fs-4 fw-bold">@Model.Hizmetler.Count</div>
+                        <div class="small opacity-75">Aktif Hizmet</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="clinic-stat-box">
+                        <div class="fs-4 fw-bold">@Model.Veterinerler.Count</div>
+                        <div class="small opacity-75">Uzman Hekim</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Evcil Hayvan &amp; Aşı Takibi</h5>
-                <p class="card-text">
-                    Hayvan sahipleri evcil hayvanlarını sisteme kaydedebilir, geçmiş aşılarını, sonraki doz tarihlerini ve muayene notlarını takip edebilir.
-                </p>
+</section>
+
+<section class="mb-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-3 gap-2">
+        <div>
+            <h3 class="fw-bold mb-0">Klinik Hizmetlerimiz</h3>
+            <p class="text-muted small mb-0">Kliniğimizde sunulan güncel hizmet, süre ve ücret listesi</p>
+        </div>
+        <span class="pill-tag">Süre ve ücret bilgileri günceldir</span>
+    </div>
+
+    @if (Model.Hizmetler.Any())
+    {
+        <div class="row g-3">
+            @foreach (var hizmet in Model.Hizmetler)
+            {
+                <div class="col-md-6">
+                    <div class="service-row p-3 h-100 d-flex justify-content-between align-items-center gap-3">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">@hizmet.Ad</h6>
+                            @if (!string.IsNullOrWhiteSpace(hizmet.Aciklama))
+                            {
+                                <p class="text-muted small mb-0">@hizmet.Aciklama</p>
+                            }
+                        </div>
+                        <div class="text-end flex-shrink-0">
+                            <div class="fw-bold text-kaplan fs-5">@hizmet.Ucret.ToString("N0") ₺</div>
+                            <span class="badge bg-light text-secondary border">@hizmet.SureDakika dk</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</section>
+
+<section class="row g-4 mt-2">
+    <div class="col-lg-7">
+        <h3 class="fw-bold mb-3">Uzman Veteriner Kadromuz</h3>
+        <div class="d-flex flex-column gap-3">
+            @foreach (var vet in Model.Veterinerler)
+            {
+                var parcalar = vet.AdSoyad
+                    .Replace("Vet. Hek.", "", StringComparison.OrdinalIgnoreCase)
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var basHarfler = parcalar.Length >= 2
+                    ? $"{parcalar[0][0]}{parcalar[^1][0]}"
+                    : (parcalar.Length == 1 ? parcalar[0][0].ToString() : "VH");
+
+                <div class="bg-white border rounded-4 p-3 d-flex align-items-center gap-3 shadow-sm">
+                    <div class="vet-avatar">@basHarfler.ToUpper()</div>
+                    <div class="flex-grow-1">
+                        <h6 class="fw-bold mb-1">@vet.AdSoyad</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            @foreach (var alan in vet.UzmanlikAlanlari.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                            {
+                                <span class="pill-tag">@alan</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <h3 class="fw-bold mb-3">Sistem Nasıl İşler?</h3>
+        <div class="bg-white border rounded-4 p-4 shadow-sm">
+            <div class="step-item pb-4">
+                <div class="step-number">1</div>
+                <h6 class="fw-bold mb-1">Üye Ol &amp; Dostunu Kaydet</h6>
+                <p class="text-muted small mb-0">Kedi, köpek veya egzotik hayvanınızın tür, ırk, doğum tarihi ve kilo bilgilerini ekleyin.</p>
+            </div>
+            <div class="step-item pb-4">
+                <div class="step-number">2</div>
+                <h6 class="fw-bold mb-1">Uygun Hekim ve Saati Seç</h6>
+                <p class="text-muted small mb-0">Hizmet türü ve tarihe göre müsait hekimlerin boş saat dilimlerini canlı görüp randevu oluşturun.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <h6 class="fw-bold mb-1">Aşı ve Muayene Geçmişini Takip Et</h6>
+                <p class="text-muted small mb-0">Geçmiş aşıları, sonraki doz tarihlerini ve hekim muayene notlarını panelden veya yapay zekâ asistanından sorgulayın.</p>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Randevu Sistemi</h5>
-                <p class="card-text">
-                    Hekim müsaitliği ve hizmet süresine göre çakışma kontrolü yapılarak uygun zaman aralıklarına randevu oluşturulur ve onaylanır.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
+</section>

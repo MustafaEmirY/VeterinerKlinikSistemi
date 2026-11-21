@@ -1,0 +1,61 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="auth-split-card shadow-sm row g-0">
+            <div class="col-md-5 d-none d-md-flex flex-column justify-content-between p-4 auth-split-side">
+                <div>
+                    <span class="badge bg-white text-kaplan rounded-pill px-3 py-2 mb-3">Kaplan Veteriner Kliniği</span>
+                    <h4 class="fw-bold mb-2">Tekrar Hoş Geldiniz</h4>
+                    <p class="small opacity-75 mb-0">
+                        Evcil hayvanlarınızın randevu, aşı takvimi ve muayene kayıtlarına ulaşmak için hesabınıza giriş yapın.
+                    </p>
+                </div>
+                <div class="small opacity-75">
+                    Klasik &amp; Egzotik Hayvan Sağlığı
+                </div>
+            </div>
+
+            <div class="col-md-7 p-4 p-md-5">
+                <h4 class="fw-bold text-kaplan mb-1">Sisteme Giriş Yap</h4>
+                <p class="text-muted small mb-4">Kayıtlı e-posta ve şifrenizi giriniz.</p>
+
+                <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold"></label>
+                        <input asp-for="Email" class="form-control" autocomplete="username" placeholder="ornek@sakarya.edu.tr" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold"></label>
+                        <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label"></label>
+                    </div>
+
+                    <button type="submit" class="btn btn-kaplan rounded-pill w-100 py-2 fw-semibold">Giriş Yap</button>
+                </form>
+
+                <hr class="my-4" />
+                <p class="text-center text-muted small mb-0">
+                    Henüz hesabınız yok mu?
+                    <a asp-action="Register" class="text-kaplan fw-semibold text-decoration-none">Üye Olun</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

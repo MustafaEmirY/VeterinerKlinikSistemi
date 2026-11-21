@@ -39,6 +39,7 @@ public class EvcilHayvan
     [Required]
     [StringLength(450)]
     public string SahipId { get; set; } = string.Empty;
+    public ApplicationUser? Sahip { get; set; }
 
     public ICollection<AsiKaydi> AsiKayitlari { get; set; } = new List<AsiKaydi>();
     public ICollection<Randevu> Randevular { get; set; } = new List<Randevu>();

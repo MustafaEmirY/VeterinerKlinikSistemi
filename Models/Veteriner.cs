@@ -33,6 +33,7 @@ public class Veteriner
 
     [StringLength(450)]
     public string? KullaniciId { get; set; }
+    public ApplicationUser? Kullanici { get; set; }
 
     public ICollection<VeterinerHizmet> VeterinerHizmetler { get; set; } = new List<VeterinerHizmet>();
     public ICollection<VeterinerMusaitlik> Musaitlikler { get; set; } = new List<VeterinerMusaitlik>();

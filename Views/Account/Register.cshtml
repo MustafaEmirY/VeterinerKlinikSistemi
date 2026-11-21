@@ -1,0 +1,68 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="auth-split-card shadow-sm row g-0">
+            <div class="col-md-5 d-none d-md-flex flex-column justify-content-between p-4 auth-split-side">
+                <div>
+                    <span class="badge bg-white text-kaplan rounded-pill px-3 py-2 mb-3">Kaplan Veteriner Kliniği</span>
+                    <h4 class="fw-bold mb-2">Aramıza Katılın</h4>
+                    <p class="small opacity-75 mb-0">
+                        Ücretsiz hesap oluşturarak evcil dostlarınızı kaydedebilir, uygun saatlere randevu alabilir ve aşı takvimlerini takip edebilirsiniz.
+                    </p>
+                </div>
+                <div class="small opacity-75">
+                    Serdivan / Sakarya
+                </div>
+            </div>
+
+            <div class="col-md-7 p-4 p-md-5">
+                <h4 class="fw-bold text-kaplan mb-1">Hayvan Sahibi Kaydı</h4>
+                <p class="text-muted small mb-4">Bilgilerinizi doldurarak hemen üye olun.</p>
+
+                <form asp-action="Register" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="AdSoyad" class="form-label fw-semibold"></label>
+                        <input asp-for="AdSoyad" class="form-control" placeholder="Adınız Soyadınız" />
+                        <span asp-validation-for="AdSoyad" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold"></label>
+                        <input asp-for="Email" class="form-control" autocomplete="username" placeholder="ornek@eposta.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold"></label>
+                        <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ConfirmPassword" class="form-label fw-semibold"></label>
+                        <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-kaplan rounded-pill w-100 py-2 fw-semibold">Kayıt Ol</button>
+                </form>
+
+                <hr class="my-4" />
+                <p class="text-center text-muted small mb-0">
+                    Zaten hesabınız var mı?
+                    <a asp-action="Login" class="text-kaplan fw-semibold text-decoration-none">Giriş Yapın</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

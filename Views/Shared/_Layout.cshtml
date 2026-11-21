@@ -3,43 +3,87 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Veteriner Kliniği</title>
+    <title>@ViewData["Title"] - Kaplan Veteriner Kliniği</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/VeterinerKlinikSistemi.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Veteriner Kliniği</a>
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-sm navbar-light navbar-kaplan shadow-sm">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="brand-mark">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5.0 5.0 C7.2 9.5 7.4 14.5 5.6 19.5 C8.8 15.2 9.2 9.5 6.8 4.4 Z" />
+                            <path d="M10.6 3.2 C13.2 8.5 13.5 14.8 11.4 20.8 C15.1 15.6 15.6 8.8 12.7 2.6 Z" />
+                            <path d="M16.4 5.4 C18.4 9.6 18.6 14.2 16.9 18.9 C19.8 15.0 20.2 9.8 18.1 4.9 Z" />
+                        </svg>
+                    </span>
+                    <span>Kaplan Veteriner Kliniği</span>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 ms-sm-3">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                            <a class="nav-link fw-semibold text-dark" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Gizlilik</a>
-                        </li>
+                    </ul>
+                    <ul class="navbar-nav align-items-sm-center gap-2">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                @if (User.IsInRole(Roller.Admin))
+                                {
+                                    <span class="badge rounded-pill badge-role-admin px-3 py-2">Admin</span>
+                                }
+                                else if (User.IsInRole(Roller.Veteriner))
+                                {
+                                    <span class="badge rounded-pill badge-role-vet px-3 py-2">Veteriner Hekim</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill badge-role-uye px-3 py-2">Hayvan Sahibi</span>
+                                }
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold text-kaplan" asp-controller="Account" asp-action="Profil">Profilim</a>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-kaplan rounded-pill px-3">Çıkış Yap</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold text-dark" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-sm btn-kaplan rounded-pill px-3 fw-semibold" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <main role="main" class="flex-grow-1 py-4">
         <div class="container">
-            &copy; 2026 - Veteriner Kliniği Randevu ve Hasta Takip Sistemi
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="border-top bg-white py-3 text-muted small mt-auto">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span><strong>Kaplan Veteriner Kliniği</strong> · Serdivan / Sakarya</span>
+            <span>&copy; 2026 · Randevu ve Hasta Takip Sistemi</span>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

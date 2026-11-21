@@ -1,3 +1,12 @@
+:root {
+  --kaplan-navy: #1e293b;
+  --kaplan-navy-dark: #0f172a;
+  --kaplan-primary: #ea580c;
+  --kaplan-primary-dark: #c2410c;
+  --kaplan-soft: #fff7ed;
+  --kaplan-border: #fed7aa;
+}
+
 html {
   font-size: 14px;
 }
@@ -8,24 +17,177 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
-  margin-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  color: #1e293b;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.navbar-kaplan {
+  background-color: #ffffff;
+  border-top: 4px solid var(--kaplan-navy);
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background-color: var(--kaplan-primary);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.text-kaplan {
+  color: var(--kaplan-primary) !important;
+}
+
+.btn-kaplan {
+  background-color: var(--kaplan-primary);
+  border-color: var(--kaplan-primary);
+  color: #ffffff;
+}
+
+.btn-kaplan:hover, .btn-kaplan:focus {
+  background-color: var(--kaplan-primary-dark);
+  border-color: var(--kaplan-primary-dark);
+  color: #ffffff;
+}
+
+.btn-outline-kaplan {
+  color: var(--kaplan-navy);
+  border-color: var(--kaplan-navy);
+}
+
+.btn-outline-kaplan:hover {
+  background-color: var(--kaplan-navy);
+  border-color: var(--kaplan-navy);
+  color: #ffffff;
+}
+
+.pill-tag {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background-color: var(--kaplan-soft);
+  border: 1px solid var(--kaplan-border);
+  color: var(--kaplan-primary-dark);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.clinic-panel {
+  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 1.25rem;
+  color: #ffffff;
+}
+
+.clinic-stat-box {
+  background: rgba(255, 255, 255, 0.10);
+  border-left: 3px solid var(--kaplan-primary);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.service-row {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid var(--kaplan-primary);
+  border-radius: 0.85rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.service-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(234, 88, 12, 0.10);
+}
+
+.vet-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--kaplan-soft);
+  border: 1px solid var(--kaplan-border);
+  color: var(--kaplan-primary-dark);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-item {
+  position: relative;
+  padding-left: 3rem;
+}
+
+.step-item:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 38px;
+  bottom: -14px;
+  width: 2px;
+  background-color: var(--kaplan-border);
+}
+
+.step-number {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--kaplan-navy);
+  color: #ffffff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-split-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.auth-split-side {
+  background: linear-gradient(155deg, #1e293b 0%, #0f172a 100%);
+  color: #ffffff;
+}
+
+.hero-kaplan {
+  background-color: var(--kaplan-soft);
+  border: 1px solid var(--kaplan-border);
+}
+
+.card-kaplan {
+  border-top: 3px solid var(--kaplan-primary);
+}
+
+.badge-role-admin {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-role-vet {
+  background-color: #ffedd5;
+  color: #9a3412;
+}
+
+.badge-role-uye {
+  background-color: #e0f2fe;
+  color: #075985;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgba(234, 88, 12, 0.30);
+  border-color: var(--kaplan-primary);
 }

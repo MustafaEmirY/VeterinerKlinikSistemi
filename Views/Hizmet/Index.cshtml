@@ -1,0 +1,73 @@
+@model List<Hizmet>
+@{
+    ViewData["Title"] = "Hizmetler";
+    var seciliKlinikId = ViewBag.SeciliKlinikId as int?;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+        <h2 class="fw-bold mb-0">Klinik Hizmetleri</h2>
+        <p class="text-muted small mb-0">Sunulan veterinerlik hizmetlerinin süre ve güncel ücret bilgileri.</p>
+    </div>
+
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <form asp-action="Index" method="get" class="d-flex align-items-center gap-2">
+            <select name="klinikId" asp-items="ViewBag.Klinikler" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+                <option value="">Tüm Klinikler</option>
+            </select>
+            @if (seciliKlinikId.HasValue)
+            {
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill">Temizle</a>
+            }
+        </form>
+
+        @if (User.IsInRole(Roller.Admin))
+        {
+            <a asp-action="Create" class="btn btn-kaplan rounded-pill px-4 fw-semibold">Yeni Hizmet Ekle</a>
+        }
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="bg-white border rounded-4 p-4 text-center text-muted">
+        Seçili kritere uygun hizmet kaydı bulunamadı.
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var hizmet in Model)
+        {
+            <div class="col-md-6">
+                <div class="service-row p-4 h-100 d-flex flex-column justify-content-between gap-3">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <div class="mb-1">
+                                <span class="pill-tag">@hizmet.Klinik?.Ad</span>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-1">@hizmet.Ad</h5>
+                            @if (!string.IsNullOrWhiteSpace(hizmet.Aciklama))
+                            {
+                                <p class="text-muted small mb-0">@hizmet.Aciklama</p>
+                            }
+                        </div>
+                        <div class="text-end flex-shrink-0">
+                            <div class="fw-bold text-kaplan fs-4">@hizmet.Ucret.ToString("N2") ₺</div>
+                            <span class="badge bg-light text-secondary border">@hizmet.SureDakika dk</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-end gap-1 border-top pt-3">
+                        <a asp-action="Details" asp-route-id="@hizmet.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Detay</a>
+                        @if (User.IsInRole(Roller.Admin))
+                        {
+                            <a asp-action="Edit" asp-route-id="@hizmet.Id" class="btn btn-sm btn-outline-kaplan rounded-pill px-3">Düzenle</a>
+                            <a asp-action="Delete" asp-route-id="@hizmet.Id" class="btn btn-sm btn-outline-danger rounded-pill px-3">Sil</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

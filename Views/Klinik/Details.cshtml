@@ -1,0 +1,72 @@
+@model Klinik
+@{
+    ViewData["Title"] = "Klinik Detayı";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">@Model.Ad</h2>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-kaplan rounded-pill px-4">Düzenle</a>
+        <a asp-action="Index" class="btn btn-outline-kaplan rounded-pill px-4">Listeye Dön</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="clinic-panel p-4 shadow-sm h-100">
+            <div class="small text-uppercase opacity-75 fw-semibold mb-2">Klinik Bilgileri</div>
+            <h4 class="fw-bold mb-3">@Model.Ad</h4>
+            <dl class="row small mb-0">
+                <dt class="col-4 opacity-75">Çalışma Saatleri</dt>
+                <dd class="col-8 fw-semibold">@Model.AcilisSaati.ToString("HH:mm") – @Model.KapanisSaati.ToString("HH:mm")</dd>
+
+                <dt class="col-4 opacity-75">Telefon</dt>
+                <dd class="col-8 fw-semibold">@Model.Telefon</dd>
+
+                <dt class="col-4 opacity-75">Adres</dt>
+                <dd class="col-8 mb-0">@Model.Adres</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="bg-white border rounded-4 p-4 shadow-sm mb-3">
+            <h5 class="fw-bold mb-3">Bağlı Hizmetler (@Model.Hizmetler.Count)</h5>
+            @if (Model.Hizmetler.Any())
+            {
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var hizmet in Model.Hizmetler)
+                    {
+                        <a asp-controller="Hizmet" asp-action="Details" asp-route-id="@hizmet.Id" class="pill-tag text-decoration-none">
+                            @hizmet.Ad (@hizmet.Ucret.ToString("N0") ₺)
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted small mb-0">Bu kliniğe henüz hizmet tanımlanmamış.</p>
+            }
+        </div>
+
+        <div class="bg-white border rounded-4 p-4 shadow-sm">
+            <h5 class="fw-bold mb-3">Görev Yapan Hekimler (@Model.Veterinerler.Count)</h5>
+            @if (Model.Veterinerler.Any())
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var vet in Model.Veterinerler)
+                    {
+                        <li class="py-1 border-bottom last-border-none">
+                            <span class="fw-semibold">@vet.AdSoyad</span>
+                            <span class="text-muted small"> — @vet.UzmanlikAlanlari</span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted small mb-0">Bu kliniğe henüz veteriner hekim eklenmemiş.</p>
+            }
+        </div>
+    </div>
+</div>

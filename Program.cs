@@ -1,7 +1,10 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using VeterinerKlinikSistemi.Data;
 using VeterinerKlinikSistemi.Models;
+using VeterinerKlinikSistemi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +33,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
 
+builder.Services.AddScoped<KlinikService>();
+builder.Services.AddScoped<HizmetService>();
+builder.Services.AddScoped<AdminService>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -41,6 +48,17 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+var trCulture = new CultureInfo("tr-TR");
+trCulture.NumberFormat.NumberDecimalSeparator = ".";
+trCulture.NumberFormat.CurrencyDecimalSeparator = ".";
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(trCulture),
+    SupportedCultures = new List<CultureInfo> { trCulture },
+    SupportedUICultures = new List<CultureInfo> { trCulture }
+};
+app.UseRequestLocalization(localizationOptions);
 
 app.UseHttpsRedirection();
 app.UseRouting();

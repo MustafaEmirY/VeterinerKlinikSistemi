@@ -1,0 +1,134 @@
+@model VeterinerFormViewModel
+@{
+    ViewData["Title"] = "Yeni Veteriner Ekle";
+    var tumHizmetler = ViewBag.TumHizmetler as List<Hizmet> ?? new List<Hizmet>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="bg-white border rounded-4 p-4 p-md-5 shadow-sm">
+            <h3 class="fw-bold text-kaplan mb-1">Yeni Veteriner Hekim Ekle</h3>
+            <p class="text-muted small mb-4">Hekim bilgilerini, verebildiği hizmetleri ve isteğe bağlı giriş hesabını tanımlayınız.</p>
+
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="KlinikId" class="form-label fw-semibold"></label>
+                    <select asp-for="KlinikId" asp-items="ViewBag.Klinikler" class="form-select" id="KlinikSecim">
+                        <option value="">Klinik Seçiniz</option>
+                    </select>
+                    <span asp-validation-for="KlinikId" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AdSoyad" class="form-label fw-semibold"></label>
+                    <input asp-for="AdSoyad" class="form-control" placeholder="Örn: Vet. Hek. Burak Aydın" />
+                    <span asp-validation-for="AdSoyad" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UzmanlikAlanlari" class="form-label fw-semibold"></label>
+                    <input asp-for="UzmanlikAlanlari" class="form-control" placeholder="Örn: Küçük Hayvan, Cerrahi, Egzotik Hayvan" />
+                    <span asp-validation-for="UzmanlikAlanlari" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label asp-for="Eposta" class="form-label fw-semibold"></label>
+                        <input asp-for="Eposta" class="form-control" placeholder="dr.ornek@kaplanvet.com" />
+                        <span asp-validation-for="Eposta" class="text-danger small"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="Telefon" class="form-label fw-semibold"></label>
+                        <input asp-for="Telefon" class="form-control" placeholder="0532 000 00 00" />
+                        <span asp-validation-for="Telefon" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Verebildiği Hizmetler</label>
+                    <div class="border rounded-3 p-3 bg-light" id="hizmetListesiAlani">
+                        <div class="row g-2">
+                            @foreach (var hizmet in tumHizmetler)
+                            {
+                                var secili = Model.SeciliHizmetIdleri.Contains(hizmet.Id);
+                                <div class="col-sm-6 hizmet-secenek" data-klinik-id="@hizmet.KlinikId">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SeciliHizmetIdleri" value="@hizmet.Id" id="hizmet_@hizmet.Id" @(secili ? "checked" : "") />
+                                        <label class="form-check-label" for="hizmet_@hizmet.Id">
+                                            @hizmet.Ad <span class="text-muted small">(@hizmet.SureDakika dk)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div id="hizmetUyari" class="small text-muted d-none mt-2">Seçilen kliniğe ait kayıtlı hizmet bulunmuyor.</div>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-3 hero-kaplan mb-4">
+                    <div class="form-check mb-2">
+                        <input asp-for="HesapOlustur" class="form-check-input" id="hesapOlusturCheck" />
+                        <label asp-for="HesapOlustur" class="form-check-label fw-semibold"></label>
+                    </div>
+                    <p class="small text-muted mb-2">
+                        İşaretliyse hekimin yukarıdaki e-postasıyla <strong>Veteriner</strong> rolünde giriş hesabı otomatik oluşturulur (kendi randevularını onaylamak için).
+                    </p>
+                    <div id="sifreAlani">
+                        <label asp-for="GirisSifresi" class="form-label fw-semibold"></label>
+                        <input asp-for="GirisSifresi" class="form-control" autocomplete="new-password" placeholder="En az 3 karakter (örn: vet123)" />
+                        <span asp-validation-for="GirisSifresi" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-kaplan rounded-pill px-4 fw-semibold">Kaydet</button>
+                    <a asp-action="Index" class="btn btn-outline-kaplan rounded-pill px-4">Vazgeç</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const klinikSelect = document.getElementById("KlinikSecim");
+            const hizmetKutulari = document.querySelectorAll(".hizmet-secenek");
+            const hizmetUyari = document.getElementById("hizmetUyari");
+            const hesapCheck = document.getElementById("hesapOlusturCheck");
+            const sifreAlani = document.getElementById("sifreAlani");
+
+            function hizmetleriFiltrele() {
+                const seciliKlinik = klinikSelect ? klinikSelect.value : "";
+                let gorunenSayisi = 0;
+
+                hizmetKutulari.forEach(kutu => {
+                    const ayniKlinik = !seciliKlinik || kutu.getAttribute("data-klinik-id") === seciliKlinik;
+                    kutu.classList.toggle("d-none", !ayniKlinik);
+                    const cb = kutu.querySelector("input[type='checkbox']");
+                    if (!ayniKlinik && cb) {
+                        cb.checked = false;
+                    }
+                    if (ayniKlinik) gorunenSayisi++;
+                });
+
+                if (hizmetUyari) {
+                    hizmetUyari.classList.toggle("d-none", gorunenSayisi > 0);
+                }
+            }
+
+            function sifreAlaniniGuncelle() {
+                if (!hesapCheck || !sifreAlani) return;
+                sifreAlani.classList.toggle("d-none", !hesapCheck.checked);
+            }
+
+            klinikSelect?.addEventListener("change", hizmetleriFiltrele);
+            hesapCheck?.addEventListener("change", sifreAlaniniGuncelle);
+            hizmetleriFiltrele();
+            sifreAlaniniGuncelle();
+        })();
+    </script>
+}

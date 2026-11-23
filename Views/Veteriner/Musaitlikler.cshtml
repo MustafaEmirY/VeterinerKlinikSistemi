@@ -1,0 +1,108 @@
+@model MusaitlikEkleViewModel
+@{
+    ViewData["Title"] = "Müsaitlik Saatleri";
+    var vet = ViewBag.Veteriner as Veteriner;
+    var siraliMusaitlikler = (vet?.Musaitlikler ?? new List<VeterinerMusaitlik>())
+        .OrderBy(m => GunYardimcisi.SiraNo(m.Gun))
+        .ThenBy(m => m.BaslangicSaati)
+        .ToList();
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h2 class="fw-bold mb-0">@vet?.AdSoyad — Müsaitlik Saatleri</h2>
+        <p class="text-muted small mb-0">
+            @vet?.Klinik?.Ad
+            @if (vet?.Klinik != null)
+            {
+                <span>· Klinik Çalışma Saatleri: <strong>@vet.Klinik.AcilisSaati.ToString("HH:mm") – @vet.Klinik.KapanisSaati.ToString("HH:mm")</strong></span>
+            }
+        </p>
+    </div>
+    <a asp-action="Details" asp-route-id="@Model.VeterinerId" class="btn btn-outline-kaplan rounded-pill px-4">Hekim Detayına Dön</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="bg-white border rounded-4 p-4 shadow-sm">
+            <h5 class="fw-bold text-kaplan mb-3">Yeni Müsaitlik Saati Ekle</h5>
+
+            <form asp-action="MusaitlikEkle" method="post">
+                <input type="hidden" asp-for="VeterinerId" />
+
+                <div class="mb-3">
+                    <label asp-for="Gun" class="form-label fw-semibold"></label>
+                    <select asp-for="Gun" class="form-select">
+                        @foreach (var gun in GunYardimcisi.HaftaninGunleri)
+                        {
+                            <option value="@gun">@GunYardimcisi.TurkceAd(gun)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Gun" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <label asp-for="BaslangicSaati" class="form-label fw-semibold"></label>
+                        <input asp-for="BaslangicSaati" type="time" class="form-control" value="@Model.BaslangicSaati.ToString("HH:mm")" />
+                        <span asp-validation-for="BaslangicSaati" class="text-danger small"></span>
+                    </div>
+                    <div class="col-6">
+                        <label asp-for="BitisSaati" class="form-label fw-semibold"></label>
+                        <input asp-for="BitisSaati" type="time" class="form-control" value="@Model.BitisSaati.ToString("HH:mm")" />
+                        <span asp-validation-for="BitisSaati" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-kaplan rounded-pill w-100 fw-semibold">Müsaitlik Ekle</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="bg-white border rounded-4 p-4 shadow-sm">
+            <h5 class="fw-bold mb-3">Tanımlı Çalışma Dilimleri (@siraliMusaitlikler.Count)</h5>
+
+            @if (!siraliMusaitlikler.Any())
+            {
+                <p class="text-muted small mb-0">Henüz tanımlı müsaitlik saati bulunmamaktadır.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Gün</th>
+                                <th>Başlangıç</th>
+                                <th>Bitiş</th>
+                                <th class="text-end">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in siraliMusaitlikler)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@GunYardimcisi.TurkceAd(item.Gun)</td>
+                                    <td>@item.BaslangicSaati.ToString("HH:mm")</td>
+                                    <td>@item.BitisSaati.ToString("HH:mm")</td>
+                                    <td class="text-end">
+                                        <form asp-action="MusaitlikSil" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="hidden" name="veterinerId" value="@Model.VeterinerId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Sil</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

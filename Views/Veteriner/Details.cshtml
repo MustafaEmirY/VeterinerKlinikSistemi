@@ -1,0 +1,114 @@
+@model Veteriner
+@{
+    ViewData["Title"] = "Veteriner Hekim Detayı";
+    var musaitlikDuzenleyebilir = ViewBag.MusaitlikDuzenleyebilir as bool? ?? false;
+    var siraliMusaitlikler = Model.Musaitlikler
+        .OrderBy(m => GunYardimcisi.SiraNo(m.Gun))
+        .ThenBy(m => m.BaslangicSaati)
+        .ToList();
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <h2 class="fw-bold mb-0">@Model.AdSoyad</h2>
+    <div class="d-flex flex-wrap gap-2">
+        @if (musaitlikDuzenleyebilir)
+        {
+            <a asp-action="Musaitlikler" asp-route-id="@Model.Id" class="btn btn-kaplan rounded-pill px-4">Müsaitlik Saatlerini Yönet</a>
+        }
+        @if (User.IsInRole(Roller.Admin))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-kaplan rounded-pill px-4">Düzenle</a>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Listeye Dön</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="clinic-panel p-4 shadow-sm h-100">
+            <div class="small text-uppercase opacity-75 fw-semibold mb-2">Hekim Profili</div>
+            <h4 class="fw-bold mb-3">@Model.AdSoyad</h4>
+
+            <dl class="row small mb-0">
+                <dt class="col-4 opacity-75">Klinik</dt>
+                <dd class="col-8 fw-semibold">@Model.Klinik?.Ad</dd>
+
+                <dt class="col-4 opacity-75">Uzmanlık</dt>
+                <dd class="col-8">@Model.UzmanlikAlanlari</dd>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Eposta))
+                {
+                    <dt class="col-4 opacity-75">E-posta</dt>
+                    <dd class="col-8">@Model.Eposta</dd>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.Telefon))
+                {
+                    <dt class="col-4 opacity-75">Telefon</dt>
+                    <dd class="col-8">@Model.Telefon</dd>
+                }
+
+                @if (User.IsInRole(Roller.Admin))
+                {
+                    <dt class="col-4 opacity-75">Giriş Hesabı</dt>
+                    <dd class="col-8 mb-0">
+                        @(Model.Kullanici != null ? Model.Kullanici.Email : "Bağlı hesap yok")
+                    </dd>
+                }
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="bg-white border rounded-4 p-4 shadow-sm mb-3">
+            <h5 class="fw-bold mb-3">Verebildiği Hizmetler (@Model.VeterinerHizmetler.Count)</h5>
+            @if (Model.VeterinerHizmetler.Any())
+            {
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var vh in Model.VeterinerHizmetler.Where(x => x.Hizmet != null))
+                    {
+                        <a asp-controller="Hizmet" asp-action="Details" asp-route-id="@vh.Hizmet!.Id" class="pill-tag text-decoration-none">
+                            @vh.Hizmet!.Ad · @vh.Hizmet.SureDakika dk · @vh.Hizmet.Ucret.ToString("N0") ₺
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted small mb-0">Bu hekime henüz hizmet atanmamış.</p>
+            }
+        </div>
+
+        <div class="bg-white border rounded-4 p-4 shadow-sm">
+            <h5 class="fw-bold mb-3">Haftalık Müsaitlik Saatleri</h5>
+            @if (siraliMusaitlikler.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Gün</th>
+                                <th>Başlangıç</th>
+                                <th>Bitiş</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in siraliMusaitlikler)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@GunYardimcisi.TurkceAd(m.Gun)</td>
+                                    <td>@m.BaslangicSaati.ToString("HH:mm")</td>
+                                    <td>@m.BitisSaati.ToString("HH:mm")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted small mb-0">Henüz müsaitlik saati tanımlanmamış.</p>
+            }
+        </div>
+    </div>
+</div>

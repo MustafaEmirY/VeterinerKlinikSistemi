@@ -1,0 +1,118 @@
+@model List<Veteriner>
+@{
+    ViewData["Title"] = "Veteriner Hekimler";
+    var seciliKlinikId = ViewBag.SeciliKlinikId as int?;
+    var arama = ViewBag.Arama as string;
+    var kendiVeterinerId = ViewBag.KendiVeterinerId as int?;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+        <h2 class="fw-bold mb-0">Veteriner Hekimler</h2>
+        <p class="text-muted small mb-0">Hekimlerimizin uzmanlık alanlarını, verebildiği hizmetleri ve çalışma günlerini inceleyin.</p>
+    </div>
+
+    @if (User.IsInRole(Roller.Admin))
+    {
+        <a asp-action="Create" class="btn btn-kaplan rounded-pill px-4 fw-semibold">Yeni Veteriner Ekle</a>
+    }
+</div>
+
+<form asp-action="Index" method="get" class="bg-white border rounded-4 p-3 shadow-sm mb-4">
+    <div class="row g-2 align-items-center">
+        <div class="col-md-4">
+            <select name="klinikId" asp-items="ViewBag.Klinikler" class="form-select">
+                <option value="">Tüm Klinikler</option>
+            </select>
+        </div>
+        <div class="col-md-5">
+            <input type="text" name="arama" value="@arama" class="form-control" placeholder="Ad veya uzmanlık alanı ara (örn: Egzotik, Cerrahi)..." />
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-kaplan rounded-pill px-4 flex-grow-1">Filtrele</button>
+            @if (seciliKlinikId.HasValue || !string.IsNullOrWhiteSpace(arama))
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">Temizle</a>
+            }
+        </div>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="bg-white border rounded-4 p-4 text-center text-muted">
+        Seçili kritere uygun veteriner hekim bulunamadı.
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var vet in Model)
+        {
+            var parcalar = vet.AdSoyad
+                .Replace("Vet. Hek.", "", StringComparison.OrdinalIgnoreCase)
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var basHarfler = parcalar.Length >= 2
+                ? $"{parcalar[0][0]}{parcalar[^1][0]}"
+                : (parcalar.Length == 1 ? parcalar[0][0].ToString() : "VH");
+
+            var musaitlikYetkili = User.IsInRole(Roller.Admin) || kendiVeterinerId == vet.Id;
+
+            <div class="col-md-6">
+                <div class="bg-white border rounded-4 p-4 h-100 shadow-sm d-flex flex-column justify-content-between gap-3">
+                    <div>
+                        <div class="d-flex align-items-start gap-3 mb-3">
+                            <div class="vet-avatar">@basHarfler.ToUpper()</div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                    <h5 class="fw-bold text-dark mb-1">@vet.AdSoyad</h5>
+                                    <span class="badge bg-light text-secondary border">@vet.Klinik?.Ad</span>
+                                </div>
+                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                    @foreach (var alan in vet.UzmanlikAlanlari.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                                    {
+                                        <span class="pill-tag">@alan</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <div class="small text-muted fw-semibold mb-1">Verebildiği Hizmetler</div>
+                            @if (vet.VeterinerHizmetler.Any())
+                            {
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var vh in vet.VeterinerHizmetler.Where(x => x.Hizmet != null))
+                                    {
+                                        <span class="badge bg-light text-dark border">@vh.Hizmet!.Ad</span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="small text-muted">Henüz hizmet atanmamış.</span>
+                            }
+                        </div>
+
+                        <div class="small text-muted mt-2">
+                            Müsaitlik kaydı: <strong class="text-dark">@vet.Musaitlikler.Count gün/dilim</strong>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-end gap-1 border-top pt-3">
+                        <a asp-action="Details" asp-route-id="@vet.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Detay</a>
+                        @if (musaitlikYetkili)
+                        {
+                            <a asp-action="Musaitlikler" asp-route-id="@vet.Id" class="btn btn-sm btn-kaplan rounded-pill px-3">Müsaitlik Saatleri</a>
+                        }
+                        @if (User.IsInRole(Roller.Admin))
+                        {
+                            <a asp-action="Edit" asp-route-id="@vet.Id" class="btn btn-sm btn-outline-kaplan rounded-pill px-3">Düzenle</a>
+                            <a asp-action="Delete" asp-route-id="@vet.Id" class="btn btn-sm btn-outline-danger rounded-pill px-3">Sil</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

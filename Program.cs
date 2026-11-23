@@ -36,6 +36,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped<KlinikService>();
 builder.Services.AddScoped<HizmetService>();
 builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<VeterinerService>();
 
 builder.Services.AddControllersWithViews();
 

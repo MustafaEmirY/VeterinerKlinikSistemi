@@ -1,0 +1,30 @@
+@model Veteriner
+@{
+    ViewData["Title"] = "Veterineri Sil";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="bg-white border border-danger-subtle rounded-4 p-4 p-md-5 shadow-sm">
+            <h3 class="fw-bold text-danger mb-2">Veteriner Hekimi Silmek İstediğinize Emin Misiniz?</h3>
+            <p class="text-muted small mb-4">Bu işlem geri alınamaz. Hekime ait randevu kaydı varsa silme işlemine izin verilmez.</p>
+
+            <dl class="row mb-4">
+                <dt class="col-sm-4 text-muted">Ad Soyad</dt>
+                <dd class="col-sm-8 fw-bold">@Model.AdSoyad</dd>
+
+                <dt class="col-sm-4 text-muted">Klinik</dt>
+                <dd class="col-sm-8">@Model.Klinik?.Ad</dd>
+
+                <dt class="col-sm-4 text-muted">Uzmanlık</dt>
+                <dd class="col-sm-8">@Model.UzmanlikAlanlari</dd>
+            </dl>
+
+            <form asp-action="Delete" method="post" class="d-flex gap-2">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger rounded-pill px-4 fw-semibold">Evet, Sil</button>
+                <a asp-action="Index" class="btn btn-outline-kaplan rounded-pill px-4">İptal</a>
+            </form>
+        </div>
+    </div>
+</div>

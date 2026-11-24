@@ -1,0 +1,82 @@
+@model EvcilHayvanFormViewModel
+@{
+    ViewData["Title"] = "Yeni Evcil Hayvan Ekle";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="bg-white border rounded-4 p-4 p-md-5 shadow-sm">
+            <h3 class="fw-bold text-kaplan mb-1">Yeni Evcil Hayvan Ekle</h3>
+            <p class="text-muted small mb-4">Kedi, köpek veya egzotik evcil dostunuzun bilgilerini giriniz.</p>
+
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                @if (User.IsInRole(Roller.Admin))
+                {
+                    <div class="mb-3">
+                        <label asp-for="SahipId" class="form-label fw-semibold"></label>
+                        <select asp-for="SahipId" asp-items="ViewBag.Sahipler" class="form-select"></select>
+                        <span asp-validation-for="SahipId" class="text-danger small"></span>
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label asp-for="Ad" class="form-label fw-semibold"></label>
+                    <input asp-for="Ad" class="form-control" placeholder="Örn: Pamuk, Tarçın, Limon" />
+                    <span asp-validation-for="Ad" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label asp-for="Tur" class="form-label fw-semibold"></label>
+                        <input asp-for="Tur" class="form-control" list="turOnerileri" placeholder="Kedi, Köpek, Egzotik..." />
+                        <datalist id="turOnerileri">
+                            <option value="Kedi"></option>
+                            <option value="Köpek"></option>
+                            <option value="Egzotik (Kuş)"></option>
+                            <option value="Egzotik (Tavşan)"></option>
+                            <option value="Egzotik (Kaplumbağa)"></option>
+                            <option value="Hamster"></option>
+                        </datalist>
+                        <span asp-validation-for="Tur" class="text-danger small"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="Irk" class="form-label fw-semibold"></label>
+                        <input asp-for="Irk" class="form-control" placeholder="Örn: Tekir, Golden Retriever, Sultan Papağanı" />
+                        <span asp-validation-for="Irk" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label asp-for="DogumTarihi" class="form-label fw-semibold"></label>
+                        <input asp-for="DogumTarihi" type="date" class="form-control" value="@Model.DogumTarihi.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="DogumTarihi" class="text-danger small"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="Kilo" class="form-label fw-semibold"></label>
+                        <input asp-for="Kilo" type="number" step="0.01" class="form-control" />
+                        <span asp-validation-for="Kilo" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Fotograf" class="form-label fw-semibold"></label>
+                    <input asp-for="Fotograf" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                    <div class="form-text">İsteğe bağlıdır. JPG, PNG veya WEBP formatında en fazla 2 MB yüklenebilir.</div>
+                    <span asp-validation-for="Fotograf" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-kaplan rounded-pill px-4 fw-semibold">Kaydet</button>
+                    <a asp-action="Index" class="btn btn-outline-kaplan rounded-pill px-4">Vazgeç</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

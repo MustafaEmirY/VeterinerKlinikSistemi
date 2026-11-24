@@ -99,12 +99,17 @@
     </div>
 
     <div class="col-md-6">
-        <div class="bg-white border rounded-4 p-3 h-100">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <h6 class="fw-bold mb-0">Evcil Hayvan &amp; Aşı Takibi</h6>
-                <span class="badge bg-light text-secondary border">Sonraki Adım</span>
+        <div class="service-row p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h5 class="fw-bold text-dark mb-1">Evcil Hayvan Yönetimi</h5>
+                <p class="text-muted small mb-3">
+                    Sistemdeki tüm klasik ve egzotik hayvan kayıtlarını (@Model.EvcilHayvanSayisi) yönetin. Aşı kayıtları (@Model.AsiKaydiSayisi) modülü bir sonraki günde eklenecek.
+                </p>
             </div>
-            <p class="text-muted small mb-0">Hayvan kayıtları (@Model.EvcilHayvanSayisi) ve aşı kayıtları (@Model.AsiKaydiSayisi) modülü.</p>
+            <div class="d-flex gap-2">
+                <a asp-controller="EvcilHayvan" asp-action="Index" class="btn btn-sm btn-kaplan rounded-pill px-3">Hayvanları Listele</a>
+                <a asp-controller="EvcilHayvan" asp-action="Create" class="btn btn-sm btn-outline-kaplan rounded-pill px-3">Yeni Ekle</a>
+            </div>
         </div>
     </div>
 

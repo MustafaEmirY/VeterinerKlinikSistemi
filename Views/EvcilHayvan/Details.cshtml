@@ -1,0 +1,127 @@
+@using VeterinerKlinikSistemi.Services
+@model EvcilHayvan
+@{
+    ViewData["Title"] = $"{Model.Ad} — Detay";
+    var duzenlemeYetkisi = ViewBag.DuzenlemeYetkisi as bool? ?? false;
+    var asilar = Model.AsiKayitlari.OrderByDescending(a => a.YapildigiTarih).ToList();
+    var randevular = Model.Randevular.OrderByDescending(r => r.BaslangicZamani).ToList();
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <h2 class="fw-bold mb-0">@Model.Ad</h2>
+    <div class="d-flex flex-wrap gap-2">
+        @if (duzenlemeYetkisi)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-kaplan rounded-pill px-4">Düzenle</a>
+        }
+        <a asp-action="Index" class="btn btn-outline-kaplan rounded-pill px-4">Listeye Dön</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="clinic-panel overflow-hidden shadow-sm h-100">
+            @if (!string.IsNullOrWhiteSpace(Model.FotografYolu))
+            {
+                <img src="@Model.FotografYolu" alt="@Model.Ad" class="w-100" style="height: 240px; object-fit: cover;" />
+            }
+            <div class="p-4">
+                <div class="small text-uppercase opacity-75 fw-semibold mb-1">Hasta Kartı</div>
+                <h3 class="fw-bold mb-3">@Model.Ad</h3>
+
+                <dl class="row small mb-0">
+                    <dt class="col-5 opacity-75">Tür</dt>
+                    <dd class="col-7 fw-semibold">@Model.Tur</dd>
+
+                    <dt class="col-5 opacity-75">Irk</dt>
+                    <dd class="col-7">@Model.Irk</dd>
+
+                    <dt class="col-5 opacity-75">Doğum Tarihi</dt>
+                    <dd class="col-7">@Model.DogumTarihi.ToString("dd.MM.yyyy") (@EvcilHayvanService.YasMetni(Model.DogumTarihi))</dd>
+
+                    <dt class="col-5 opacity-75">Kilo</dt>
+                    <dd class="col-7 fw-semibold">@Model.Kilo.ToString("0.##") kg</dd>
+
+                    @if (Model.Sahip != null)
+                    {
+                        <dt class="col-5 opacity-75">Hayvan Sahibi</dt>
+                        <dd class="col-7 mb-0">@Model.Sahip.AdSoyad</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="bg-white border rounded-4 p-4 shadow-sm mb-3">
+            <h5 class="fw-bold mb-3">Aşı Geçmişi (@asilar.Count)</h5>
+            @if (asilar.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Aşı Adı</th>
+                                <th>Yapıldığı Tarih</th>
+                                <th>Sonraki Doz</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var asi in asilar)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">@asi.AsiAdi</div>
+                                        @if (!string.IsNullOrWhiteSpace(asi.Notlar))
+                                        {
+                                            <div class="small text-muted">@asi.Notlar</div>
+                                        }
+                                    </td>
+                                    <td>@asi.YapildigiTarih.ToString("dd.MM.yyyy")</td>
+                                    <td>
+                                        @(asi.SonrakiDozTarihi.HasValue ? asi.SonrakiDozTarihi.Value.ToString("dd.MM.yyyy") : "—")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted small mb-0">Bu evcil hayvan için henüz aşı kaydı bulunmamaktadır.</p>
+            }
+        </div>
+
+        <div class="bg-white border rounded-4 p-4 shadow-sm">
+            <h5 class="fw-bold mb-3">Randevu ve Muayene Geçmişi (@randevular.Count)</h5>
+            @if (randevular.Any())
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var r in randevular)
+                    {
+                        <div class="border rounded-3 p-3">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
+                                <span class="fw-bold text-dark">@r.Hizmet?.Ad</span>
+                                <span class="pill-tag">@r.Durum</span>
+                            </div>
+                            <div class="small text-muted mb-1">
+                                @r.BaslangicZamani.ToString("dd.MM.yyyy HH:mm") · @r.Veteriner?.AdSoyad · @r.Ucret.ToString("N0") ₺
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(r.MuayeneNotu))
+                            {
+                                <div class="small bg-light rounded p-2 mt-2">
+                                    <strong>Muayene Notu:</strong> @r.MuayeneNotu
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted small mb-0">Henüz randevu kaydı bulunmamaktadır.</p>
+            }
+        </div>
+    </div>
+</div>

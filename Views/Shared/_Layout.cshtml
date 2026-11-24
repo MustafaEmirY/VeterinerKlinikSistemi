@@ -38,6 +38,14 @@
                         <li class="nav-item">
                             <a class="nav-link fw-semibold text-dark" asp-area="" asp-controller="Veteriner" asp-action="Index">Veterinerler</a>
                         </li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold text-dark" asp-area="" asp-controller="EvcilHayvan" asp-action="Index">
+                                    @(User.IsInRole(Roller.Admin) || User.IsInRole(Roller.Veteriner) ? "Evcil Hayvanlar" : "Evcil Hayvanlarım")
+                                </a>
+                            </li>
+                        }
                         @if (User.IsInRole(Roller.Admin))
                         {
                             <li class="nav-item">

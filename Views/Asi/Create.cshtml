@@ -1,0 +1,68 @@
+@model AsiKaydi
+@{
+    ViewData["Title"] = "Yeni Aşı Kaydı Ekle";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="bg-white border rounded-4 p-4 p-md-5 shadow-sm">
+            <h3 class="fw-bold text-kaplan mb-1">Yeni Aşı Kaydı Ekle</h3>
+            <p class="text-muted small mb-4">Evcil hayvan için yapılan aşı ve sonraki doz tarihini giriniz.</p>
+
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="EvcilHayvanId" class="form-label fw-semibold"></label>
+                    <select asp-for="EvcilHayvanId" asp-items="ViewBag.EvcilHayvanlar" class="form-select">
+                        <option value="">Evcil Hayvan Seçiniz</option>
+                    </select>
+                    <span asp-validation-for="EvcilHayvanId" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AsiAdi" class="form-label fw-semibold"></label>
+                    <input asp-for="AsiAdi" class="form-control" list="asiOnerileri" placeholder="Örn: Karma Aşı, Kuduz Aşısı" />
+                    <datalist id="asiOnerileri">
+                        <option value="Karma Aşı"></option>
+                        <option value="Kuduz Aşısı"></option>
+                        <option value="Lösemi Aşısı"></option>
+                        <option value="İç-Dış Parazit Uygulaması"></option>
+                        <option value="RHDV Karma Aşı"></option>
+                        <option value="Kuş Karma Aşısı"></option>
+                    </datalist>
+                    <span asp-validation-for="AsiAdi" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label asp-for="YapildigiTarih" class="form-label fw-semibold"></label>
+                        <input asp-for="YapildigiTarih" type="date" class="form-control" value="@Model.YapildigiTarih.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="YapildigiTarih" class="text-danger small"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="SonrakiDozTarihi" class="form-label fw-semibold"></label>
+                        <input asp-for="SonrakiDozTarihi" type="date" class="form-control" value="@(Model.SonrakiDozTarihi.HasValue ? Model.SonrakiDozTarihi.Value.ToString("yyyy-MM-dd") : "")" />
+                        <div class="form-text">Tek doz ise boş bırakabilirsiniz.</div>
+                        <span asp-validation-for="SonrakiDozTarihi" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Notlar" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Notlar" class="form-control" rows="2" placeholder="Varsa aşı tepkisi veya sonraki doz hatırlatması..."></textarea>
+                    <span asp-validation-for="Notlar" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-kaplan rounded-pill px-4 fw-semibold">Kaydet</button>
+                    <a asp-action="Index" class="btn btn-outline-kaplan rounded-pill px-4">Vazgeç</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

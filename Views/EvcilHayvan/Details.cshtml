@@ -54,7 +54,13 @@
 
     <div class="col-lg-7">
         <div class="bg-white border rounded-4 p-4 shadow-sm mb-3">
-            <h5 class="fw-bold mb-3">Aşı Geçmişi (@asilar.Count)</h5>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h5 class="fw-bold mb-0">Aşı Geçmişi (@asilar.Count)</h5>
+                @if (User.IsInRole(Roller.Admin) || User.IsInRole(Roller.Veteriner))
+                {
+                    <a asp-controller="Asi" asp-action="Create" asp-route-evcilHayvanId="@Model.Id" class="btn btn-sm btn-kaplan rounded-pill px-3">+ Aşı Ekle</a>
+                }
+            </div>
             @if (asilar.Any())
             {
                 <div class="table-responsive">
@@ -64,6 +70,7 @@
                                 <th>Aşı Adı</th>
                                 <th>Yapıldığı Tarih</th>
                                 <th>Sonraki Doz</th>
+                                <th>Durum</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -71,7 +78,9 @@
                             {
                                 <tr>
                                     <td>
-                                        <div class="fw-semibold">@asi.AsiAdi</div>
+                                        <a asp-controller="Asi" asp-action="Details" asp-route-id="@asi.Id" class="fw-semibold text-kaplan text-decoration-none">
+                                            @asi.AsiAdi
+                                        </a>
                                         @if (!string.IsNullOrWhiteSpace(asi.Notlar))
                                         {
                                             <div class="small text-muted">@asi.Notlar</div>
@@ -80,6 +89,9 @@
                                     <td>@asi.YapildigiTarih.ToString("dd.MM.yyyy")</td>
                                     <td>
                                         @(asi.SonrakiDozTarihi.HasValue ? asi.SonrakiDozTarihi.Value.ToString("dd.MM.yyyy") : "—")
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">@AsiService.DozDurumu(asi.SonrakiDozTarihi)</span>
                                     </td>
                                 </tr>
                             }

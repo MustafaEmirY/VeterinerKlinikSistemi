@@ -1,0 +1,77 @@
+@using VeterinerKlinikSistemi.Services
+@model AsiKaydi
+@{
+    ViewData["Title"] = $"{Model.AsiAdi} — Aşı Detayı";
+    var personelMi = User.IsInRole(Roller.Admin) || User.IsInRole(Roller.Veteriner);
+    var durum = AsiService.DozDurumu(Model.SonrakiDozTarihi);
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <h2 class="fw-bold mb-0">@Model.AsiAdi</h2>
+    <div class="d-flex flex-wrap gap-2">
+        @if (personelMi)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-kaplan rounded-pill px-4">Düzenle</a>
+        }
+        <a asp-action="Index" class="btn btn-outline-kaplan rounded-pill px-4">Listeye Dön</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="clinic-panel p-4 shadow-sm h-100">
+            <div class="small text-uppercase opacity-75 fw-semibold mb-1">Aşı Kaydı Özeti</div>
+            <h4 class="fw-bold mb-3">@Model.AsiAdi</h4>
+
+            <dl class="row small mb-0">
+                <dt class="col-5 opacity-75">Yapıldığı Tarih</dt>
+                <dd class="col-7 fw-semibold">@Model.YapildigiTarih.ToString("dd.MM.yyyy")</dd>
+
+                <dt class="col-5 opacity-75">Sonraki Doz</dt>
+                <dd class="col-7 fw-semibold">
+                    @(Model.SonrakiDozTarihi.HasValue ? Model.SonrakiDozTarihi.Value.ToString("dd.MM.yyyy") : "Tek Doz")
+                </dd>
+
+                <dt class="col-5 opacity-75">Durum</dt>
+                <dd class="col-7 mb-0">
+                    <span class="badge bg-white text-kaplan rounded-pill px-3 py-1">@durum</span>
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="bg-white border rounded-4 p-4 shadow-sm mb-3">
+            <h5 class="fw-bold mb-3">Evcil Hayvan Bilgisi</h5>
+            <dl class="row small mb-2">
+                <dt class="col-sm-4 text-muted">Evcil Hayvan</dt>
+                <dd class="col-sm-8 fw-bold">
+                    <a asp-controller="EvcilHayvan" asp-action="Details" asp-route-id="@Model.EvcilHayvanId" class="text-kaplan text-decoration-none">
+                        @Model.EvcilHayvan?.Ad
+                    </a>
+                </dd>
+
+                <dt class="col-sm-4 text-muted">Tür / Irk</dt>
+                <dd class="col-sm-8">@Model.EvcilHayvan?.Tur — @Model.EvcilHayvan?.Irk</dd>
+
+                @if (Model.EvcilHayvan?.Sahip != null)
+                {
+                    <dt class="col-sm-4 text-muted">Hayvan Sahibi</dt>
+                    <dd class="col-sm-8 mb-0">@Model.EvcilHayvan.Sahip.AdSoyad</dd>
+                }
+            </dl>
+        </div>
+
+        <div class="bg-white border rounded-4 p-4 shadow-sm">
+            <h5 class="fw-bold mb-2">Hekim Notları</h5>
+            @if (!string.IsNullOrWhiteSpace(Model.Notlar))
+            {
+                <p class="mb-0 text-dark">@Model.Notlar</p>
+            }
+            else
+            {
+                <p class="text-muted small mb-0">Bu aşı kaydına eklenmiş bir not bulunmamaktadır.</p>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,125 @@
+@using VeterinerKlinikSistemi.Services
+@model List<AsiKaydi>
+@{
+    var personelMi = User.IsInRole(Roller.Admin) || User.IsInRole(Roller.Veteriner);
+    var seciliHayvanId = ViewBag.SeciliHayvanId as int?;
+    var sadeceYaklasan = ViewBag.SadeceYaklasan as bool? ?? false;
+    ViewData["Title"] = personelMi ? "Aşı Kayıtları" : "Aşı Takvimim";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+        <h2 class="fw-bold mb-0">@ViewData["Title"]</h2>
+        <p class="text-muted small mb-0">
+            @(personelMi
+                ? "Hastaların geçmiş aşılarını ve yaklaşan doz tarihlerini yönetin."
+                : "Evcil hayvanlarınızın yapılan aşılarını ve yaklaşan doz tarihlerini takip edin.")
+        </p>
+    </div>
+
+    @if (personelMi)
+    {
+        <a asp-action="Create" class="btn btn-kaplan rounded-pill px-4 fw-semibold">Yeni Aşı Kaydı Ekle</a>
+    }
+</div>
+
+<form asp-action="Index" method="get" class="bg-white border rounded-4 p-3 shadow-sm mb-4">
+    <div class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <select name="evcilHayvanId" asp-items="ViewBag.EvcilHayvanlar" class="form-select">
+                <option value="">Tüm Evcil Hayvanlar</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="sadeceYaklasan" value="true" id="yaklasanCheck" @(sadeceYaklasan ? "checked" : "") />
+                <label class="form-check-label small fw-semibold" for="yaklasanCheck">
+                    Sadece Yaklaşan / Günü Geçenler (30 gün)
+                </label>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-kaplan rounded-pill px-4 flex-grow-1">Filtrele</button>
+            @if (seciliHayvanId.HasValue || sadeceYaklasan)
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">Temizle</a>
+            }
+        </div>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="bg-white border rounded-4 p-4 text-center text-muted shadow-sm">
+        Seçili kritere uygun aşı kaydı bulunamadı.
+    </div>
+}
+else
+{
+    <div class="bg-white border rounded-4 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Evcil Hayvan</th>
+                        <th>Aşı Adı</th>
+                        <th>Yapıldığı Tarih</th>
+                        <th>Sonraki Doz</th>
+                        <th>Durum</th>
+                        <th class="text-end pe-4">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var asi in Model)
+                    {
+                        var durum = AsiService.DozDurumu(asi.SonrakiDozTarihi);
+                        var rozetSinifi = durum.StartsWith("Günü Geçti")
+                            ? "bg-danger-subtle text-danger border border-danger-subtle"
+                            : (durum.StartsWith("Yaklaşıyor")
+                                ? "pill-tag"
+                                : "bg-light text-secondary border");
+
+                        <tr>
+                            <td class="ps-4">
+                                <a asp-controller="EvcilHayvan" asp-action="Details" asp-route-id="@asi.EvcilHayvanId" class="fw-bold text-dark text-decoration-none">
+                                    @asi.EvcilHayvan?.Ad
+                                </a>
+                                <div class="small text-muted">
+                                    @asi.EvcilHayvan?.Tur
+                                    @if (personelMi && asi.EvcilHayvan?.Sahip != null)
+                                    {
+                                        <span> · @asi.EvcilHayvan.Sahip.AdSoyad</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">@asi.AsiAdi</div>
+                                @if (!string.IsNullOrWhiteSpace(asi.Notlar))
+                                {
+                                    <div class="small text-muted">@asi.Notlar</div>
+                                }
+                            </td>
+                            <td>@asi.YapildigiTarih.ToString("dd.MM.yyyy")</td>
+                            <td>
+                                @(asi.SonrakiDozTarihi.HasValue ? asi.SonrakiDozTarihi.Value.ToString("dd.MM.yyyy") : "—")
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill px-3 py-2 @rozetSinifi">@durum</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-inline-flex gap-1">
+                                    <a asp-action="Details" asp-route-id="@asi.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Detay</a>
+                                    @if (personelMi)
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@asi.Id" class="btn btn-sm btn-outline-kaplan rounded-pill px-3">Düzenle</a>
+                                        <a asp-action="Delete" asp-route-id="@asi.Id" class="btn btn-sm btn-outline-danger rounded-pill px-3">Sil</a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

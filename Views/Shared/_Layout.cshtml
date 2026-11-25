@@ -45,6 +45,11 @@
                                     @(User.IsInRole(Roller.Admin) || User.IsInRole(Roller.Veteriner) ? "Evcil Hayvanlar" : "Evcil Hayvanlarım")
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold text-dark" asp-area="" asp-controller="Asi" asp-action="Index">
+                                    @(User.IsInRole(Roller.Admin) || User.IsInRole(Roller.Veteriner) ? "Aşı Kayıtları" : "Aşı Takvimim")
+                                </a>
+                            </li>
                         }
                         @if (User.IsInRole(Roller.Admin))
                         {

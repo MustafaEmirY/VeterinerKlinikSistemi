@@ -11,9 +11,9 @@
 </head>
 <body>
     <header class="sticky-top">
-        <nav class="navbar navbar-expand-sm navbar-light navbar-kaplan shadow-sm">
-            <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+        <nav class="navbar navbar-expand-lg navbar-light navbar-kaplan shadow-sm">
+            <div class="container-xl">
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark text-nowrap" asp-area="" asp-controller="Home" asp-action="Index">
                     <span class="brand-mark">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M5.0 5.0 C7.2 9.5 7.4 14.5 5.6 19.5 C8.8 15.2 9.2 9.5 6.8 4.4 Z" />
@@ -27,73 +27,88 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1 ms-sm-3">
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between align-items-lg-center">
+                    <ul class="navbar-nav flex-grow-1 ms-lg-3 gap-lg-1">
                         <li class="nav-item">
-                            <a class="nav-link fw-semibold text-dark" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                            <a class="nav-link fw-semibold text-dark text-nowrap" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fw-semibold text-dark" asp-area="" asp-controller="Hizmet" asp-action="Index">Hizmetler</a>
+                            <a class="nav-link fw-semibold text-dark text-nowrap" asp-area="" asp-controller="Hizmet" asp-action="Index">Hizmetler</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fw-semibold text-dark" asp-area="" asp-controller="Veteriner" asp-action="Index">Veterinerler</a>
+                            <a class="nav-link fw-semibold text-dark text-nowrap" asp-area="" asp-controller="Veteriner" asp-action="Index">Veterinerler</a>
                         </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link fw-semibold text-dark" asp-area="" asp-controller="EvcilHayvan" asp-action="Index">
-                                    @(User.IsInRole(Roller.Admin) || User.IsInRole(Roller.Veteriner) ? "Evcil Hayvanlar" : "Evcil Hayvanlarım")
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link fw-semibold text-dark" asp-area="" asp-controller="Asi" asp-action="Index">
-                                    @(User.IsInRole(Roller.Admin) || User.IsInRole(Roller.Veteriner) ? "Aşı Kayıtları" : "Aşı Takvimim")
-                                </a>
-                            </li>
-                        }
-                        @if (User.IsInRole(Roller.Admin))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link fw-semibold text-kaplan" asp-area="" asp-controller="Admin" asp-action="Index">Admin Paneli</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link fw-semibold text-dark" asp-area="" asp-controller="Klinik" asp-action="Index">Klinikler</a>
-                            </li>
+                            @if (User.IsInRole(Roller.Admin))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link fw-semibold text-dark text-nowrap" asp-area="" asp-controller="Randevu" asp-action="Index">Randevular</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle fw-semibold text-kaplan text-nowrap" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Yönetim
+                                    </a>
+                                    <ul class="dropdown-menu shadow-sm border rounded-3">
+                                        <li><a class="dropdown-item fw-semibold text-kaplan" asp-controller="Admin" asp-action="Index">Admin Paneli</a></li>
+                                        <li><hr class="dropdown-divider" /></li>
+                                        <li><a class="dropdown-item" asp-controller="Klinik" asp-action="Index">Klinikler</a></li>
+                                        <li><a class="dropdown-item" asp-controller="EvcilHayvan" asp-action="Index">Evcil Hayvanlar</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Asi" asp-action="Index">Aşı Kayıtları</a></li>
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link fw-semibold text-dark text-nowrap" asp-area="" asp-controller="EvcilHayvan" asp-action="Index">
+                                        @(User.IsInRole(Roller.Veteriner) ? "Evcil Hayvanlar" : "Evcil Hayvanlarım")
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link fw-semibold text-dark text-nowrap" asp-area="" asp-controller="Asi" asp-action="Index">
+                                        @(User.IsInRole(Roller.Veteriner) ? "Aşı Kayıtları" : "Aşı Takvimim")
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link fw-semibold text-dark text-nowrap" asp-area="" asp-controller="Randevu" asp-action="Index">Randevularım</a>
+                                </li>
+                            }
                         }
                     </ul>
-                    <ul class="navbar-nav align-items-sm-center gap-2">
+                    <ul class="navbar-nav align-items-lg-center gap-2 mt-2 mt-lg-0">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
                                 @if (User.IsInRole(Roller.Admin))
                                 {
-                                    <span class="badge rounded-pill badge-role-admin px-3 py-2">Admin</span>
+                                    <span class="badge rounded-pill badge-role-admin px-3 py-2 text-nowrap">Admin</span>
                                 }
                                 else if (User.IsInRole(Roller.Veteriner))
                                 {
-                                    <span class="badge rounded-pill badge-role-vet px-3 py-2">Veteriner Hekim</span>
+                                    <span class="badge rounded-pill badge-role-vet px-3 py-2 text-nowrap">Veteriner Hekim</span>
                                 }
                                 else
                                 {
-                                    <span class="badge rounded-pill badge-role-uye px-3 py-2">Hayvan Sahibi</span>
+                                    <span class="badge rounded-pill badge-role-uye px-3 py-2 text-nowrap">Hayvan Sahibi</span>
                                 }
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link fw-semibold text-kaplan" asp-controller="Account" asp-action="Profil">Profilim</a>
+                                <a class="nav-link fw-semibold text-kaplan text-nowrap" asp-controller="Account" asp-action="Profil">Profilim</a>
                             </li>
                             <li class="nav-item">
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-kaplan rounded-pill px-3">Çıkış Yap</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-kaplan rounded-pill px-3 text-nowrap">Çıkış Yap</button>
                                 </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link fw-semibold text-dark" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+                                <a class="nav-link fw-semibold text-dark text-nowrap" asp-controller="Account" asp-action="Login">Giriş Yap</a>
                             </li>
                             <li class="nav-item">
-                                <a class="btn btn-sm btn-kaplan rounded-pill px-3 fw-semibold" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
+                                <a class="btn btn-sm btn-kaplan rounded-pill px-3 fw-semibold text-nowrap" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
                             </li>
                         }
                     </ul>

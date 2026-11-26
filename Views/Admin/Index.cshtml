@@ -115,12 +115,18 @@
     </div>
 
     <div class="col-md-6">
-        <div class="bg-white border rounded-4 p-3 h-100">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <h6 class="fw-bold mb-0">Randevu &amp; Raporlama</h6>
-                <span class="badge bg-light text-secondary border">Sonraki Adım</span>
+        <div class="service-row p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h5 class="fw-bold text-dark mb-1">Randevu Yönetimi</h5>
+                <p class="text-muted small mb-3">
+                    Bekleyen (@Model.BekleyenRandevuSayisi) ve toplam (@Model.ToplamRandevuSayisi) randevuları onaylayın, reddedin veya muayene notu ekleyin. REST API raporları bir sonraki günde eklenecek.
+                </p>
             </div>
-            <p class="text-muted small mb-0">Randevu onay/red akışı, muayene notları ve REST API ciro raporları.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-controller="Randevu" asp-action="Index" class="btn btn-sm btn-kaplan rounded-pill px-3">Tüm Randevular</a>
+                <a asp-controller="Randevu" asp-action="Index" asp-route-durum="@RandevuDurumu.Bekliyor" class="btn btn-sm btn-outline-kaplan rounded-pill px-3">Bekleyenler</a>
+                <a asp-controller="Randevu" asp-action="Create" class="btn btn-sm btn-outline-kaplan rounded-pill px-3">Yeni Randevu</a>
+            </div>
         </div>
     </div>
 </div>

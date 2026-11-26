@@ -1,0 +1,41 @@
+@model MuayeneNotuViewModel
+@{
+    ViewData["Title"] = "Muayene Notu Gir";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="bg-white border rounded-4 p-4 p-md-5 shadow-sm">
+            <h3 class="fw-bold text-kaplan mb-1">Muayene Notu Gir</h3>
+            <p class="text-muted small mb-4">
+                <strong>@Model.HayvanAdi</strong> · @Model.HizmetAdi · @Model.BaslangicZamani.ToString("dd.MM.yyyy HH:mm")
+            </p>
+
+            <form asp-action="MuayeneNotu" method="post">
+                <input type="hidden" asp-for="RandevuId" />
+                <input type="hidden" asp-for="HayvanAdi" />
+                <input type="hidden" asp-for="HizmetAdi" />
+                <input type="hidden" asp-for="VeterinerAdi" />
+                <input type="hidden" asp-for="BaslangicZamani" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                <div class="mb-4">
+                    <label asp-for="MuayeneNotu" class="form-label fw-semibold"></label>
+                    <textarea asp-for="MuayeneNotu" class="form-control" rows="5" placeholder="Muayene bulguları, uygulanan tedavi ve önerileri yazınız..."></textarea>
+                    <div class="form-text">Kaydettiğinizde randevu otomatik olarak <strong>Tamamlandı</strong> durumuna geçer.</div>
+                    <span asp-validation-for="MuayeneNotu" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-kaplan rounded-pill px-4 fw-semibold">Kaydet ve Tamamla</button>
+                    <a asp-action="Details" asp-route-id="@Model.RandevuId" class="btn btn-outline-kaplan rounded-pill px-4">Vazgeç</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

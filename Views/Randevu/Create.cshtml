@@ -1,0 +1,143 @@
+@model RandevuFormViewModel
+@{
+    ViewData["Title"] = "Yeni Randevu Al";
+}
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="bg-white border rounded-4 p-4 p-md-5 shadow-sm">
+            <h3 class="fw-bold text-kaplan mb-1">Yeni Randevu Al</h3>
+            <p class="text-muted small mb-4">Evcil hayvanınızı, hizmeti ve tarihi seçin; sağda açılan uygun saatlerden birine tıklayarak hızlıca randevu oluşturun.</p>
+
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="EvcilHayvanId" class="form-label fw-semibold"></label>
+                    <select asp-for="EvcilHayvanId" asp-items="ViewBag.EvcilHayvanlar" class="form-select">
+                        <option value="">Evcil Hayvan Seçiniz</option>
+                    </select>
+                    <span asp-validation-for="EvcilHayvanId" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-7">
+                        <label asp-for="HizmetId" class="form-label fw-semibold"></label>
+                        <select asp-for="HizmetId" asp-items="ViewBag.Hizmetler" class="form-select" id="HizmetSecim">
+                            <option value="">Hizmet Seçiniz</option>
+                        </select>
+                        <span asp-validation-for="HizmetId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-sm-5">
+                        <label asp-for="Tarih" class="form-label fw-semibold"></label>
+                        <input asp-for="Tarih" type="date" class="form-control" id="TarihSecim" value="@Model.Tarih.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="Tarih" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-7">
+                        <label asp-for="VeterinerId" class="form-label fw-semibold"></label>
+                        <select asp-for="VeterinerId" asp-items="ViewBag.Veterinerler" class="form-select" id="VeterinerSecim">
+                            <option value="">Veteriner Hekim Seçiniz</option>
+                        </select>
+                        <span asp-validation-for="VeterinerId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-sm-5">
+                        <label asp-for="Saat" class="form-label fw-semibold"></label>
+                        <input asp-for="Saat" type="time" class="form-control" id="SaatSecim" value="@Model.Saat.ToString("HH:mm")" />
+                        <span asp-validation-for="Saat" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-kaplan rounded-pill px-4 fw-semibold">Randevu Oluştur</button>
+                    <a asp-action="Index" class="btn btn-outline-kaplan rounded-pill px-4">Vazgeç</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="bg-white border rounded-4 p-4 shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold text-dark mb-0">Uygun Hekim ve Saatler</h5>
+                <span class="pill-tag">Canlı Kontrol</span>
+            </div>
+            <p class="small text-muted mb-3">
+                Hizmet ve tarih seçtiğinizde o gün boş olan hekimler ve hizmet süresine uygun saat dilimleri otomatik listelenir.
+            </p>
+            <div id="uygunSaatlerAlani" class="small text-muted">
+                Uygun saatleri görmek için önce bir <strong>Hizmet</strong> ve <strong>Tarih</strong> seçiniz.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            function uygunSaatleriYukle() {
+                const hizmetId = $("#HizmetSecim").val();
+                const tarih = $("#TarihSecim").val();
+                const alan = $("#uygunSaatlerAlani");
+
+                if (!hizmetId || !tarih) {
+                    alan.html("Uygun saatleri görmek için önce bir <strong>Hizmet</strong> ve <strong>Tarih</strong> seçiniz.");
+                    return;
+                }
+
+                alan.html('<div class="text-muted">Uygun saatler sorgulanıyor...</div>');
+
+                $.getJSON("@Url.Action("UygunSaatler", "Randevu")", { hizmetId: hizmetId, tarih: tarih })
+                    .done(function (data) {
+                        if (!data || data.length === 0) {
+                            alan.html('<div class="alert alert-warning py-2 mb-0">Seçilen hizmet ve tarih için uygun boş saat bulunamadı. Farklı bir gün deneyebilirsiniz.</div>');
+                            return;
+                        }
+
+                        const seciliVet = $("#VeterinerSecim").val();
+                        const seciliSaat = $("#SaatSecim").val();
+                        let html = '<div class="d-flex flex-column gap-3">';
+
+                        data.forEach(function (hekim) {
+                            html += '<div class="border rounded-3 p-3 bg-light">';
+                            html += '<div class="fw-bold text-dark">' + hekim.veterinerAdSoyad + '</div>';
+                            html += '<div class="small text-muted mb-2">' + hekim.uzmanlikAlanlari + '</div>';
+                            html += '<div class="d-flex flex-wrap gap-1">';
+
+                            hekim.uygunSaatler.forEach(function (saat) {
+                                const aktifMi = String(hekim.veterinerId) === String(seciliVet) && saat === seciliSaat;
+                                const btnClass = aktifMi ? "btn-kaplan" : "btn-outline-kaplan";
+                                html += '<button type="button" class="btn btn-sm ' + btnClass + ' rounded-pill saat-sec-btn" data-vet="' + hekim.veterinerId + '" data-saat="' + saat + '">' + saat + '</button>';
+                            });
+
+                            html += '</div></div>';
+                        });
+
+                        html += '</div>';
+                        alan.html(html);
+                    })
+                    .fail(function () {
+                        alan.html('<div class="alert alert-danger py-2 mb-0">Uygun saatler yüklenirken bir hata oluştu.</div>');
+                    });
+            }
+
+            $(document).on("click", ".saat-sec-btn", function () {
+                const vetId = $(this).data("vet");
+                const saat = $(this).data("saat");
+                $("#VeterinerSecim").val(vetId);
+                $("#SaatSecim").val(saat);
+
+                $(".saat-sec-btn").removeClass("btn-kaplan").addClass("btn-outline-kaplan");
+                $(this).removeClass("btn-outline-kaplan").addClass("btn-kaplan");
+            });
+
+            $("#HizmetSecim, #TarihSecim").on("change", uygunSaatleriYukle);
+            if ($("#HizmetSecim").val() && $("#TarihSecim").val()) {
+                uygunSaatleriYukle();
+            }
+        });
+    </script>
+}

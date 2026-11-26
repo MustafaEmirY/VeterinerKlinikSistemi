@@ -39,6 +39,7 @@ builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<VeterinerService>();
 builder.Services.AddScoped<EvcilHayvanService>();
 builder.Services.AddScoped<AsiService>();
+builder.Services.AddScoped<RandevuService>();
 
 builder.Services.AddControllersWithViews();
 

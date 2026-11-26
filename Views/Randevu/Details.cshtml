@@ -1,0 +1,109 @@
+@using VeterinerKlinikSistemi.Services
+@model Randevu
+@{
+    ViewData["Title"] = $"Randevu #{Model.Id}";
+    var adminMi = User.IsInRole(Roller.Admin);
+    var veterinerMi = User.IsInRole(Roller.Veteriner);
+    var uyeMi = !adminMi && !veterinerMi;
+    var bitis = Model.BaslangicZamani.AddMinutes(Model.SureDakika);
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <h2 class="fw-bold mb-0">Randevu Detayı #@Model.Id</h2>
+    <div class="d-flex flex-wrap gap-2">
+        @if ((adminMi || veterinerMi) && (Model.Durum == RandevuDurumu.Onaylandi || Model.Durum == RandevuDurumu.Tamamlandi))
+        {
+            <a asp-action="MuayeneNotu" asp-route-id="@Model.Id" class="btn btn-kaplan rounded-pill px-4">
+                @(Model.Durum == RandevuDurumu.Tamamlandi ? "Muayene Notunu Düzenle" : "Muayene Notu Gir & Tamamla")
+            </a>
+        }
+        @if ((adminMi || uyeMi) && (adminMi || Model.Durum == RandevuDurumu.Bekliyor))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-kaplan rounded-pill px-4">Düzenle</a>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Listeye Dön</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="clinic-panel p-4 shadow-sm h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small text-uppercase opacity-75 fw-semibold">Randevu Özeti</span>
+                <span class="badge bg-white text-kaplan rounded-pill px-3 py-1">@RandevuService.DurumMetni(Model.Durum)</span>
+            </div>
+            <h4 class="fw-bold mb-3">@Model.Hizmet?.Ad</h4>
+
+            <dl class="row small mb-0">
+                <dt class="col-5 opacity-75">Tarih</dt>
+                <dd class="col-7 fw-semibold">@Model.BaslangicZamani.ToString("dd.MM.yyyy")</dd>
+
+                <dt class="col-5 opacity-75">Saat Aralığı</dt>
+                <dd class="col-7 fw-semibold">@Model.BaslangicZamani.ToString("HH:mm") – @bitis.ToString("HH:mm") (@Model.SureDakika dk)</dd>
+
+                <dt class="col-5 opacity-75">Ücret</dt>
+                <dd class="col-7 fw-semibold">@Model.Ucret.ToString("N2") ₺</dd>
+
+                <dt class="col-5 opacity-75">Klinik</dt>
+                <dd class="col-7">@Model.Veteriner?.Klinik?.Ad</dd>
+
+                <dt class="col-5 opacity-75">Oluşturulma</dt>
+                <dd class="col-7 mb-0">@Model.OlusturulmaTarihi.ToString("dd.MM.yyyy HH:mm")</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="bg-white border rounded-4 p-4 shadow-sm mb-3">
+            <h5 class="fw-bold mb-3">Hasta ve Hekim Bilgileri</h5>
+            <dl class="row small mb-0">
+                <dt class="col-sm-4 text-muted">Evcil Hayvan</dt>
+                <dd class="col-sm-8 fw-bold">
+                    <a asp-controller="EvcilHayvan" asp-action="Details" asp-route-id="@Model.EvcilHayvanId" class="text-kaplan text-decoration-none">
+                        @Model.EvcilHayvan?.Ad (@Model.EvcilHayvan?.Tur)
+                    </a>
+                </dd>
+
+                @if (Model.EvcilHayvan?.Sahip != null)
+                {
+                    <dt class="col-sm-4 text-muted">Hayvan Sahibi</dt>
+                    <dd class="col-sm-8">@Model.EvcilHayvan.Sahip.AdSoyad</dd>
+                }
+
+                <dt class="col-sm-4 text-muted">Veteriner Hekim</dt>
+                <dd class="col-sm-8 mb-0">
+                    <a asp-controller="Veteriner" asp-action="Details" asp-route-id="@Model.VeterinerId" class="text-dark fw-semibold text-decoration-none">
+                        @Model.Veteriner?.AdSoyad
+                    </a>
+                </dd>
+            </dl>
+
+            @if ((adminMi || veterinerMi) && Model.Durum == RandevuDurumu.Bekliyor)
+            {
+                <hr class="my-3" />
+                <div class="d-flex flex-wrap gap-2">
+                    <form asp-action="Onayla" asp-route-id="@Model.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-success rounded-pill px-4 fw-semibold">Randevuyu Onayla</button>
+                    </form>
+                    <form asp-action="Reddet" asp-route-id="@Model.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-danger rounded-pill px-4">Reddet</button>
+                    </form>
+                </div>
+            }
+        </div>
+
+        <div class="bg-white border rounded-4 p-4 shadow-sm">
+            <h5 class="fw-bold mb-2">Hekim Muayene Notu</h5>
+            @if (!string.IsNullOrWhiteSpace(Model.MuayeneNotu))
+            {
+                <p class="mb-0 text-dark">@Model.MuayeneNotu</p>
+            }
+            else
+            {
+                <p class="text-muted small mb-0">
+                    Henüz muayene notu girilmemiş. Randevu onaylandıktan sonra ilgili veteriner hekim muayene notu girerek randevuyu tamamlayabilir.
+                </p>
+            }
+        </div>
+    </div>
+</div>

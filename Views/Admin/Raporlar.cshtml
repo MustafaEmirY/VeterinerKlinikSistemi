@@ -1,0 +1,137 @@
+@{
+    ViewData["Title"] = "Raporlar";
+}
+
+<div class="clinic-panel p-4 p-md-5 mb-4 shadow-sm">
+    <div class="row g-3 align-items-center">
+        <div class="col-lg-6">
+            <span class="badge bg-white text-kaplan rounded-pill px-3 py-2 mb-2">Ciro &amp; Performans Analizi</span>
+            <h2 class="fw-bold mb-1">Hizmet Bazlı Randevu &amp; Ciro Raporu</h2>
+            <p class="small opacity-75 mb-0">
+                Tarih aralığı ve kliniğe göre hizmet bazlı randevu sayılarını ve ciro dağılımını inceleyin.
+            </p>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="clinic-stat-box">
+                <div class="fs-3 fw-bold" id="genelRandevuSayisi">-</div>
+                <div class="small opacity-75">Toplam Randevu</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="clinic-stat-box">
+                <div class="fs-3 fw-bold" id="genelCiro">-</div>
+                <div class="small opacity-75">Onaylı + Tamamlanan Ciro</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white border rounded-4 p-4 shadow-sm mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label for="baslangicTarihi" class="form-label fw-semibold small">Başlangıç Tarihi</label>
+            <input type="date" id="baslangicTarihi" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label for="bitisTarihi" class="form-label fw-semibold small">Bitiş Tarihi</label>
+            <input type="date" id="bitisTarihi" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label for="klinikSecim" class="form-label fw-semibold small">Klinik</label>
+            <select id="klinikSecim" asp-items="ViewBag.Klinikler" class="form-select">
+                <option value="">Tüm Klinikler</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="button" id="raporGetirBtn" class="btn btn-kaplan rounded-pill px-4 flex-grow-1 fw-semibold">Raporu Getir</button>
+            <button type="button" id="temizleBtn" class="btn btn-outline-secondary rounded-pill px-3">Temizle</button>
+        </div>
+    </div>
+    <div id="raporHataAlani" class="alert alert-danger py-2 mt-3 mb-0 d-none"></div>
+</div>
+
+<div class="bg-white border rounded-4 shadow-sm overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Hizmet Adı</th>
+                    <th>Klinik</th>
+                    <th class="text-center">Toplam Randevu</th>
+                    <th class="text-center">Onaylı / Tamamlanan</th>
+                    <th class="text-center">Bekleyen</th>
+                    <th class="text-end pe-4">Toplam Ciro</th>
+                </tr>
+            </thead>
+            <tbody id="raporTabloGovde">
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">Rapor yükleniyor...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            function paraFormatla(tutar) {
+                return Number(tutar).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺";
+            }
+
+            function raporuYukle() {
+                const baslangic = $("#baslangicTarihi").val();
+                const bitis = $("#bitisTarihi").val();
+                const klinikId = $("#klinikSecim").val();
+                const hataAlani = $("#raporHataAlani");
+                const govde = $("#raporTabloGovde");
+
+                hataAlani.addClass("d-none").text("");
+
+                const params = {};
+                if (baslangic) params.baslangic = baslangic;
+                if (bitis) params.bitis = bitis;
+                if (klinikId) params.klinikId = klinikId;
+
+                $.getJSON("/api/raporlar/ciro", params)
+                    .done(function (data) {
+                        $("#genelRandevuSayisi").text(data.genelRandevuSayisi);
+                        $("#genelCiro").text(paraFormatla(data.genelCiro));
+
+                        if (!data.hizmetBazliRapor || data.hizmetBazliRapor.length === 0) {
+                            govde.html('<tr><td colspan="6" class="text-center py-4 text-muted">Seçili kritere uygun randevu kaydı bulunamadı.</td></tr>');
+                            return;
+                        }
+
+                        let html = "";
+                        data.hizmetBazliRapor.forEach(function (satir) {
+                            html += "<tr>";
+                            html += '<td class="ps-4 fw-bold text-dark">' + satir.hizmetAdi + "</td>";
+                            html += '<td class="text-muted small">' + satir.klinikAdi + "</td>";
+                            html += '<td class="text-center"><span class="badge bg-light text-dark border">' + satir.toplamRandevuSayisi + "</span></td>";
+                            html += '<td class="text-center"><span class="badge bg-success-subtle text-success border">' + satir.onayliVeyaTamamlananSayisi + "</span></td>";
+                            html += '<td class="text-center"><span class="badge bg-warning-subtle text-warning-emphasis border">' + satir.bekleyenSayisi + "</span></td>";
+                            html += '<td class="text-end pe-4 fw-bold text-kaplan">' + paraFormatla(satir.toplamCiro) + "</td>";
+                            html += "</tr>";
+                        });
+
+                        govde.html(html);
+                    })
+                    .fail(function (xhr) {
+                        const mesaj = xhr.responseJSON?.mesaj || "Rapor verileri alınırken hata oluştu (HTTP " + xhr.status + ").";
+                        hataAlani.text(mesaj).removeClass("d-none");
+                    });
+            }
+
+            $("#raporGetirBtn").on("click", raporuYukle);
+            $("#temizleBtn").on("click", function () {
+                $("#baslangicTarihi").val("");
+                $("#bitisTarihi").val("");
+                $("#klinikSecim").val("");
+                raporuYukle();
+            });
+
+            raporuYukle();
+        });
+    </script>
+}

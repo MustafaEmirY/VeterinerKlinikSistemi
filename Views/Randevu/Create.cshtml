@@ -90,7 +90,7 @@
 
                 alan.html('<div class="text-muted">Uygun saatler sorgulanıyor...</div>');
 
-                $.getJSON("@Url.Action("UygunSaatler", "Randevu")", { hizmetId: hizmetId, tarih: tarih })
+                $.getJSON("/api/randevular/uygun-saatler", { hizmetId: hizmetId, tarih: tarih })
                     .done(function (data) {
                         if (!data || data.length === 0) {
                             alan.html('<div class="alert alert-warning py-2 mb-0">Seçilen hizmet ve tarih için uygun boş saat bulunamadı. Farklı bir gün deneyebilirsiniz.</div>');

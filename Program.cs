@@ -31,6 +31,31 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Account/Login";
     options.LogoutPath = "/Account/Logout";
     options.AccessDeniedPath = "/Account/AccessDenied";
+
+    // REST API isteklerinde HTML login sayfasına 302 yönlendirmek yerine doğru HTTP 401/403 durum kodlarını döndür
+    options.Events.OnRedirectToLogin = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
+
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
 });
 
 builder.Services.AddScoped<KlinikService>();
@@ -40,6 +65,7 @@ builder.Services.AddScoped<VeterinerService>();
 builder.Services.AddScoped<EvcilHayvanService>();
 builder.Services.AddScoped<AsiService>();
 builder.Services.AddScoped<RandevuService>();
+builder.Services.AddScoped<RaporService>();
 
 builder.Services.AddControllersWithViews();
 

@@ -1,7 +1,9 @@
 using System.Globalization;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using VeterinerKlinikSistemi.Authentication;
 using VeterinerKlinikSistemi.Data;
 using VeterinerKlinikSistemi.Models;
 using VeterinerKlinikSistemi.Services;
@@ -67,6 +69,31 @@ builder.Services.AddScoped<AsiService>();
 builder.Services.AddScoped<RandevuService>();
 builder.Services.AddScoped<RaporService>();
 
+// MCP sunucusu için HTTP bağlamı, token tabanlı kimlik doğrulama ve CORS yapılandırması
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAuthentication()
+    .AddScheme<AuthenticationSchemeOptions, McpTokenAuthenticationHandler>(
+        McpTokenAuthenticationHandler.SchemeName,
+        _ => { });
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("McpInspectorCors", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .WithExposedHeaders("Mcp-Session-Id");
+    });
+});
+
+builder.Services.AddMcpServer()
+    .WithHttpTransport(options =>
+    {
+        options.Stateless = true;
+    })
+    .WithToolsFromAssembly();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -93,10 +120,17 @@ app.UseRequestLocalization(localizationOptions);
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+app.MapMcp("/mcp")
+    .RequireCors("McpInspectorCors")
+    .RequireAuthorization(policy => policy
+        .AddAuthenticationSchemes(McpTokenAuthenticationHandler.SchemeName)
+        .RequireAuthenticatedUser());
 
 app.MapControllerRoute(
     name: "default",
